@@ -1,0 +1,15 @@
+# Personal project-context files — NEVER commit real infra details
+# (server IPs, credentials, SSH targets, known-vuln locations, etc.)
+skills/*/projects/*.md
+!skills/*/projects/README.md
+!skills/*/projects/example.md
+
+# Orchestration run outputs
+orchestration-output/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
