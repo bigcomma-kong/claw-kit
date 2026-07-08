@@ -48,6 +48,10 @@ Both skills share the same architecture:
 - **Governance built in.** Absolute rules: no external AI-API fallback, no
   writes to production DBs, no file edits / commits / deploys without explicit
   approval. Tune these in each `SKILL.md`.
+- **Verify, don't just merge.** An optional adversarial-verify pass (Phase 2.5)
+  refutes worker claims before the Reviewer merges them; `orchestrate-dev` adds a
+  build/test **green loop** (Phase 5) that iterates approved changes until they
+  pass — hard-capped to avoid runaway loops.
 - **Parallel by default.** Independent subtasks run as concurrent agents.
 
 ---

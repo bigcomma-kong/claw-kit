@@ -218,6 +218,50 @@ Agent 도구 1회 호출 (`subagent_type: general-purpose`).
 
 ---
 
+## Phase 2.5: 반박 검증 (Adversarial Verify)
+
+> Worker 결과에 **주장성 결론**(원인 단정·취약점 지적·수치 판정·"~이다/~때문이다")이 있을 때만 수행. 순수 요약·문서화 업무면 건너뛰고 Phase 3 진행.
+
+목적: Reviewer 병합 전에 **그럴듯하지만 틀린 주장**을 걸러낸다.
+
+1. Worker 결과에서 검증 대상 주장 추출 (핵심 최대 5개; 초과 시 중요도 순 상위 5개, 나머지는 "미검증 N건" 으로 로그에 명시 — 조용히 버리지 말 것)
+2. 각 주장당 verifier 에이전트 1개를 **병렬 소환** (한 메시지에 Agent 여러 개)
+3. verifier는 **반증을 기본자세**로 한다 (확인이 아니라 반박 시도)
+
+### Verifier 프롬프트 템플릿
+
+```
+당신은 {PROJECT_NAME} 오케스트레이션의 독립 검증자입니다.
+아래 주장을 **반박**하려 시도하세요. 확인이 아니라 반증이 목표입니다.
+
+[프로젝트 컨텍스트]
+{PROJECT_CONTEXT 전체}
+
+[검증할 주장]
+{claim — 원문 + 근거로 제시된 파일:라인}
+
+[검증 방법]
+- 제시된 근거(파일:라인)를 직접 Read/Grep 으로 확인
+- 반례·누락된 경로·잘못된 전제를 찾는다
+- 근거가 부실하거나 확인 불가하면 기각 쪽 (의심스러우면 REFUTED)
+
+[출력 — JSON만]
+{
+  "claim": "검증한 주장 요약",
+  "verdict": "CONFIRMED | REFUTED | UNCERTAIN",
+  "evidence": "판정 근거 (파일:라인 포함)",
+  "note": "한 줄 코멘트"
+}
+```
+
+### 후처리
+- `CONFIRMED` → Reviewer 입력에 그대로 전달
+- `REFUTED` → 최종 보고에서 제외하되 "반박됨: {claim} — {evidence}" 로 별도 기록
+- `UNCERTAIN` → "미확정" 태그로 전달 (Reviewer가 낮은 신뢰도로 취급)
+- Reviewer 프롬프트에 검증 결과 요약(CONFIRMED/REFUTED/UNCERTAIN 건수 + 항목)을 함께 주입
+
+---
+
 ## Phase 3: 결과 검토 (Reviewer)
 
 Agent 도구 1회 호출.
@@ -299,6 +343,7 @@ Agent 도구 1회 호출.
 
 ## 버전
 
+- v2.2: 반박 검증(Phase 2.5) 추가 — 병합 전 주장 반증으로 그럴듯한 오답 필터.
 - v2.1: 글로벌 위치로 이동 (`~/.claude/skills/orchestrate/`). 경로를 `{SKILL_BASE}` 기반으로 변경.
 - v2.0: 프로젝트 독립화. projects/ 와 roles/ 분리. Planner 결정 규칙 및 rationale 출력 추가.
 - v1.0: 초기 구현 (단일 프로젝트 하드코딩).
