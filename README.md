@@ -2,6 +2,8 @@
 
 **Reusable skill sets for [Claude Code](https://claude.com/claude-code).**
 
+🌐 **English** · [한국어](./README.ko.md)
+
 A growing collection of drop-in skills. Each skill lives under `skills/<name>/`
 and installs into your global `~/.claude/skills/` directory. Nothing here is
 tied to a specific company or repo — you supply your own project context.
